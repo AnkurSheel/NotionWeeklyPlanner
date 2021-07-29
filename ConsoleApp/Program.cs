@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Notion.Client;
+using NotionWeeklyPlanner;
 
 namespace ConsoleApp
 {
@@ -13,13 +12,23 @@ namespace ConsoleApp
         {
             private static async Task Main()
             {
-                var config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json").AddUserSecrets<Program>().Build();
+                var serviceProvider = ConfigureServices();
+                await serviceProvider.GetRequiredService<App>().Run();
+            }
 
-                var clientOptions = new ClientOptions
-                {
-                    AuthToken = config["Notion:IntegrationToken"]
-                };
-                var weeklyDatabaseId = config["Notion:WeeklyDatabaseId"];
+            private static ServiceProvider ConfigureServices()
+            {
+                var config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json", false).AddUserSecrets<Program>().Build();
+
+                var notionSettings = config.GetSection("Notion").Get<NotionSettings>();
+
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddSingleton(_ => notionSettings);
+                serviceCollection.AddTransient<Client>();
+                serviceCollection.AddTransient<App>();
+                serviceCollection.AddTransient<WeeklyPageCreator>();
+
+                return serviceCollection.BuildServiceProvider();
             }
         }
     }
