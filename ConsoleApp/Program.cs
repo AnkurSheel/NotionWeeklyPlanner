@@ -27,6 +27,7 @@ namespace ConsoleApp
                 serviceCollection.AddTransient<Client>();
                 serviceCollection.AddTransient<App>();
                 serviceCollection.AddTransient<WeeklyPageCreator>();
+                serviceCollection.AddTransient<JournalPagesCreator>();
 
                 return serviceCollection.BuildServiceProvider();
             }
