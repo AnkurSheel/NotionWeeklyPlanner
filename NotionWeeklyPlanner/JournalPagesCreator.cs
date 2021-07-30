@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Notion.Client;
 
@@ -17,28 +16,23 @@ namespace NotionWeeklyPlanner
             _databaseId = notionSettings.JournalDatabaseId ?? throw new ArgumentNullException(nameof(notionSettings));
         }
 
-        public async Task<List<string> CreateJournalPages(DateTime startDate)
+        public async Task<List<string>> CreateJournalPages(DateTime startDate)
         {
-            var pages = await _client.GetPages(_databaseId, "Date");
-
             var createdPageIds = new List<string>();
             var endDate = startDate.AddDays(6);
+
+            var pages = await _client.GetPages(_databaseId, "Date");
 
             for (var i = 0; i <= 6; i++)
             {
                 var date = startDate.AddDays(i);
                 var title = $"{date:MMM dd, yyyy}";
 
-                var existingPage = pages.Results.SingleOrDefault(
-                    x =>
-                    {
-                        var titleValue = x.Properties["Name"] as TitlePropertyValue;
-                        var pageTitle = titleValue?.Title.FirstOrDefault();
-                        return pageTitle?.PlainText == title;
-                    });
+                var existingPage = _client.GetPage(pages.Results, title, "Name");
 
                 if (existingPage != null)
                 {
+                    createdPageIds.Add(existingPage.Id);
                     continue;
                 }
 
@@ -83,6 +77,5 @@ namespace NotionWeeklyPlanner
 
             return createdPageIds;
         }
-
     }
 }

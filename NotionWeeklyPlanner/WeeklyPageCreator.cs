@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Notion.Client;
 
@@ -19,23 +18,15 @@ namespace NotionWeeklyPlanner
 
         public async Task<string> CreateWeeklyPage(DateTime startDate)
         {
-            var pages = await _client.GetPages(_databaseId, "Week");
-
             var endDate = startDate.AddDays(6);
 
             var title = $"{startDate:MMM dd, yyyy} → {endDate:MMM dd, yyyy}";
 
-            var existingPage = pages.Results.SingleOrDefault(
-                x =>
-                {
-                    var titleValue = x.Properties["Name"] as TitlePropertyValue;
-                    var pageTitle = titleValue?.Title.FirstOrDefault();
-                    return pageTitle != null && pageTitle.PlainText == title;
-                });
+            var existingPage = await _client.GetPage(_databaseId, title, "Name");
 
             if (existingPage != null)
             {
-                return;
+                return existingPage.Id;
             }
 
             var newPage = new NewPage
