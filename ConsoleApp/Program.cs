@@ -13,7 +13,7 @@ namespace ConsoleApp
             private static async Task Main()
             {
                 var serviceProvider = ConfigureServices();
-                await serviceProvider.GetRequiredService<App>().Run();
+                await serviceProvider.GetRequiredService<App>().Run(new DateTime(2021, 08, 01));
             }
 
             private static ServiceProvider ConfigureServices()

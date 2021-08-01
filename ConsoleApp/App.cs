@@ -17,10 +17,8 @@ namespace ConsoleApp.ConsoleApp
             _pageLinker = pageLinker;
         }
 
-        public async Task Run()
+        public async Task Run(DateTime startDate)
         {
-            var startDate = new DateTime(2021, 07, 25);
-
             var weeklyPageId = await _weeklyPageCreator.CreateWeeklyPage(startDate);
             var journalPageIds = await _journalPagesCreator.CreateJournalPages(startDate);
 
